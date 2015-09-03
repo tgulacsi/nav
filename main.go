@@ -88,8 +88,16 @@ func lekerdez(page string, adoszam ...string) error {
 	if err != nil {
 		return err
 	}
-	for _, tn := range adoszam {
-		if _, err = io.WriteString(pw, tn+"\n"); err != nil {
+	if len(adoszam) > 0 {
+		Log.Info("Asking", "adoszam", adoszam)
+		for _, tn := range adoszam {
+			if _, err = io.WriteString(pw, tn[:8]+"\n"); err != nil {
+				return err
+			}
+		}
+	} else {
+		Log.Info("Copying stdin...")
+		if _, err = io.Copy(pw, os.Stdin); err != nil {
 			return err
 		}
 	}
@@ -113,7 +121,6 @@ func lekerdez(page string, adoszam ...string) error {
 		Log.Error("getDownloadURL", "error", err)
 		return err
 	}
-	Log.Info("download file", "url", page)
 	//http://80.249.172.60/cgi-bin/afaalany/ktmp/2015090310172791EC26C5_catv_pool_telekom_hutempfile.txt:
 	Log.Info("get", "url", page)
 	resp, err = http.Get(page)
