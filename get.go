@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package nav
 
 import (
 	"bytes"
-	"flag"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -27,37 +26,15 @@ import (
 	"os"
 	"strings"
 
+	"gopkg.in/inconshreveable/log15.v2"
+
 	"github.com/tgulacsi/go/text"
 	"golang.org/x/net/html"
-	"gopkg.in/inconshreveable/log15.v2"
 )
 
-var Log = log15.New()
+var Log = log15.New("lib", "nav")
 
-func main() {
-	Log.SetHandler(log15.StderrHandler)
-	flagVerbose := flag.Bool("v", false, "verbose logging")
-	flagURL := flag.String("url", "http://nav.gov.hu/nav/adatbazisok/adatbleker/afaalanyok/afaalanyok_csoportos", "starting URL")
-	flag.Parse()
-	hndl := log15.StderrHandler
-	if !*flagVerbose {
-		hndl = log15.LvlFilterHandler(log15.LvlInfo, log15.StderrHandler)
-	}
-	Log.SetHandler(hndl)
-
-	base, err := getBase(*flagURL)
-	if err != nil {
-		Log.Error("getBase", "url", *flagURL, "error", err)
-		os.Exit(2)
-	}
-	Log.Info("base", "url", base)
-
-	if err = lekerdez(*flagURL, flag.Args()...); err != nil {
-		Log.Error("lekerdez", "url", base, "error", err)
-		os.Exit(2)
-	}
-}
-func lekerdez(page string, adoszam ...string) error {
+func lekerdez(page string, adoszam []string) error {
 	base, err := getBase(page)
 	if err != nil {
 		Log.Error("getBase", "url", page, "error", err)
